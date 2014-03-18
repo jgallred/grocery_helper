@@ -1,0 +1,21 @@
+{
+  "name": "grocery_tracker",
+  "version": "0.0.0",
+  "description": "",
+  "scripts": {
+    "test": "gulp test"
+  },
+  "author": {
+    "name": "jgallred <jgallred86@gmail.com>"
+  },
+  "devDependencies": {
+    "gulp": "~3.4.0",
+    "gulp-jshint": "~1.5.0",
+    "jshint-stylish": "^0.1.5",
+    "gulp-livereload": "^1.2.0",
+    "gulp-changed": "^0.2.1",
+    "gulp-watch": "^0.5.0",
+    "gulp-exec": "^1.0.4"
+  },
+  "license": "MIT"
+}

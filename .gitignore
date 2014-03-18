@@ -1,10 +1,16 @@
 /bootstrap/compiled.php
 /vendor
 composer.phar
-composer.lock
+#composer.lock
 .env.local.php
 .env.php
 .DS_Store
 Thumbs.db
 *.sublime-workspace
 .vagrant
+/node_modules
+/nbproject
+/public/assets/bower_components
+_ide_*
+/report
+.idea
