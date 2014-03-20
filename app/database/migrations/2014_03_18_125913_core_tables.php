@@ -14,39 +14,39 @@ class CoreTables extends Migration {
     {
 
         Schema::create('units', function ($table) {
-            $table->increments('id');
+            $table->increments('id')->unsigned();
             $table->string('name', 50);
         });
 
         Schema::create('ingredients', function ($table) {
-            $table->increments('id');
+            $table->increments('id')->unsigned();
             $table->string('name');
         });
 
         Schema::create('meals', function ($table) {
-            $table->increments('id');
+            $table->increments('id')->unsigned();
             $table->string('name', 100);
             $table->integer('nights');
         });
 
         Schema::create('components', function ($table) {
-            $table->increments('id');
-            $table->integer('size');
-            $table->integer('unit_id');
-            $table->integer('ingredient_id');
-            $table->integer('meal_id');
+            $table->increments('id')->unsigned();
+            $table->integer('size')->unsigned();
+            $table->integer('unit_id')->unsigned();
+            $table->integer('ingredient_id')->unsigned();
+            $table->integer('meal_id')->unsigned();
 
             $table->foreign('unit_id')
-		      ->references('id')->on('units')
-		      ->onDelete('cascade');
+             ->references('id')->on('units')
+             ->onDelete('cascade');
 
-	      	$table->foreign('ingredient_id')
-		      ->references('id')->on('ingredients')
-		      ->onDelete('cascade');
+            $table->foreign('ingredient_id')
+             ->references('id')->on('ingredients')
+             ->onDelete('cascade');
 
             $table->foreign('meal_id')
-		      ->references('id')->on('meals')
-		      ->onDelete('cascade');
+              ->references('id')->on('meals')
+              ->onDelete('cascade');
         });
     }
 
