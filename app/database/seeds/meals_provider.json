@@ -1,0 +1,15 @@
+[
+    {
+        "name" : "Taco Salad",
+        "nights" : 2,
+        "ingredients" : [
+            {"name" : "ground beef", "size" : 1, "unit" : "pound"},
+            {"name" : "light red kidney beans", "size" : 1, "unit" : "can"},
+            {"name" : "dark red kidney beans", "size" : 1, "unit" : "can"},
+            {"name" : "shredded chedder cheese", "size" : 2, "unit" : "cup"},
+            {"name" : "taco seasoning", "size" : 1, "unit" : "package"},
+            {"name" : "nacho doritos", "size" : 1, "unit" : "bag"},
+            {"name" : "lettuce", "size" : 1, "unit" : "bag"}
+        ]
+    }
+]
