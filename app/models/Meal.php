@@ -3,9 +3,9 @@
 class Meal extends Eloquent
 {
 
-    public function components()
+    public function ingredients()
     {
-        return $this->hasMany('Component');
+        return $this->hasMany('Ingredient');
     }
 
 }

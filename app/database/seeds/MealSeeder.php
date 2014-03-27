@@ -11,9 +11,6 @@ class MealSeeder extends Seeder {
     {
         DB::table('meals')->delete();
 
-        $units = DB::table('units')->lists('id', 'name');
-        $ingredients = DB::table('ingredients')->lists('id', 'name');
-
         $meals = File::get(__DIR__ . '/meals_provider.json');
         $meals = json_decode($meals);
 
@@ -21,17 +18,17 @@ class MealSeeder extends Seeder {
         foreach ($meals as $meal) {
             $id = DB::table('meals')->insertGetId(["name" => $meal->name, "nights" => $meal->nights]);
 
-            $components = $meal->ingredients;
-            $db_components = [];
-            foreach ($components as $component) {
-                $db_components[] = [
+            $ingredients = $meal->ingredients;
+            $db_ingredients = [];
+            foreach ($ingredients as $ingredient) {
+                $db_ingredients[] = [
                     "meal_id" => $id,
-                    "size" => $component->size,
-                    "unit_id" => $units[$component->unit],
-                    "ingredient_id" => $ingredients[$component->name]
+                    "size" => $ingredient->size,
+                    "unit" => $ingredient->unit,
+                    "name" => $ingredient->name
                 ];
             }
-            DB::table('components')->insert($db_components);
+            DB::table('ingredients')->insert($db_ingredients);
         }
     }
 
