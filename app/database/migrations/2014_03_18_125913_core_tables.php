@@ -21,7 +21,7 @@ class CoreTables extends Migration {
         Schema::create('ingredients', function ($table) {
             $table->increments('id');
             $table->integer('meal_id')->unsigned();
-            $table->integer('size')->unsigned();
+            $table->float('size')->unsigned();
             $table->string('unit');
             $table->string('name');
 

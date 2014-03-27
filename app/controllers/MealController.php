@@ -19,18 +19,8 @@ class MealController extends \BaseController {
      */
     public function index()
     {
-        return $this->meal->all()->toJson();
+        return Response::json($this->meal->all()->toArray());
     }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return Response
-     */
-    // public function create()
-    // {
-    //     //
-    // }
 
     /**
      * Store a newly created resource in storage.
@@ -39,7 +29,29 @@ class MealController extends \BaseController {
      */
     public function store()
     {
-        //
+        $validator = Validator::make(
+            Input::all(),
+            array(
+                'name' => 'required|min:5|max:100',
+                'nights' => 'required|integer|min:0'
+            )
+        );
+
+        if ($validator->fails()) {
+            return Response::json(
+                array('errors' => $validator->messages()->toArray()),
+                400
+            );
+        }
+
+        $meal = new Meal();
+
+        $meal->name = Input::get('name');
+        $meal->nights = Input::get('nights');
+
+        $meal->save();
+
+        return Response::json($meal->toArray(), 201);
     }
 
     /**
@@ -50,18 +62,7 @@ class MealController extends \BaseController {
      */
     public function show($id)
     {
-        return $this->meal->findOrFail($id)->toJson();
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return Response
-     */
-    public function edit($id)
-    {
-        //
+        return Response::json($this->meal->findOrFail($id)->toArray());
     }
 
     /**
@@ -72,7 +73,34 @@ class MealController extends \BaseController {
      */
     public function update($id)
     {
-        //
+        $validator = Validator::make(
+            Input::all(),
+            array(
+                'name' => 'min:5|max:100',
+                'nights' => 'integer|min:0'
+            )
+        );
+
+        if ($validator->fails()) {
+            return Response::json(
+                array('errors' => $validator->messages()->toArray()),
+                400
+            );
+        }
+
+        $meal = $this->meal->findOrFail($id);
+
+        if (Input::has('name')) {
+            $meal->name = Input::get('name');
+        }
+
+        if (Input::has('nights')) {
+            $meal->nights = Input::get('nights');
+        }
+
+        $meal->save();
+
+        return Response::make('', 204);
     }
 
     /**
@@ -83,7 +111,9 @@ class MealController extends \BaseController {
      */
     public function destroy($id)
     {
-        //
+        $meal = $this->meal->findOrFail($id);
+        $meal->delete();
+        return Response::make('', 204);
     }
 
 }
