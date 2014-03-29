@@ -17,3 +17,20 @@ Route::get('/', function()
 });
 
 Route::resource('meal', 'MealController');
+
+Route::get(
+    'meal/{meal_id}/ingredients',
+    ['uses' => 'MealController@getMealIngredients']
+)->where('meal_id', '[0-9]+');
+
+Route::get(
+    'ingredient/units',
+    ['uses' => 'IngredientController@getUnits']
+);
+
+Route::get(
+    'ingredient/names',
+    ['uses' => 'IngredientController@getNames']
+);
+
+Route::resource('ingredient', 'IngredientController');

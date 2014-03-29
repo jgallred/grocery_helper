@@ -1,49 +1,25 @@
 <?php
 
-class MealController extends \BaseController {
+class MealController extends \RestController {
 
-	/**
-	 * @var Meal
-	 */
-	private $meal;
+    protected $create_rules = array(
+        'name' => 'required|min:5|max:100',
+        'nights' => 'required|integer|min:0'
+    );
+
+    protected $update_rules = array(
+        'name' => 'min:5|max:100',
+        'nights' => 'integer|min:0'
+    );
+
 
     public function __construct(Meal $meal)
     {
-    	$this->meal = $meal;
+    	$this->model = $meal;
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return Response
-     */
-    public function index()
+    protected function saveNewResource()
     {
-        return Response::json($this->meal->all()->toArray());
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @return Response
-     */
-    public function store()
-    {
-        $validator = Validator::make(
-            Input::all(),
-            array(
-                'name' => 'required|min:5|max:100',
-                'nights' => 'required|integer|min:0'
-            )
-        );
-
-        if ($validator->fails()) {
-            return Response::json(
-                array('errors' => $validator->messages()->toArray()),
-                400
-            );
-        }
-
         $meal = new Meal();
 
         $meal->name = Input::get('name');
@@ -51,69 +27,27 @@ class MealController extends \BaseController {
 
         $meal->save();
 
-        return Response::json($meal->toArray(), 201);
+        return $meal;
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return Response
-     */
-    public function show($id)
+    protected function updateResource(Eloquent &$model)
     {
-        return Response::json($this->meal->findOrFail($id)->toArray());
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  int  $id
-     * @return Response
-     */
-    public function update($id)
-    {
-        $validator = Validator::make(
-            Input::all(),
-            array(
-                'name' => 'min:5|max:100',
-                'nights' => 'integer|min:0'
-            )
-        );
-
-        if ($validator->fails()) {
-            return Response::json(
-                array('errors' => $validator->messages()->toArray()),
-                400
-            );
-        }
-
-        $meal = $this->meal->findOrFail($id);
 
         if (Input::has('name')) {
-            $meal->name = Input::get('name');
+            $model->name = Input::get('name');
         }
 
         if (Input::has('nights')) {
-            $meal->nights = Input::get('nights');
+            $model->nights = Input::get('nights');
         }
 
-        $meal->save();
-
-        return Response::make('', 204);
+        $model->save();
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return Response
-     */
-    public function destroy($id)
+    public function getMealIngredients($meal_id)
     {
-        $meal = $this->meal->findOrFail($id);
-        $meal->delete();
-        return Response::make('', 204);
+        $meal = $this->model->findOrFail($meal_id);
+        return Response::json($meal->ingredients);
     }
 
 }
