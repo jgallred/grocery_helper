@@ -22,10 +22,22 @@ gulp.task('install', ['composer_install', 'bower_install']);
 
 gulp.task('lint', function() {
     gulp.src([
-        'gulpfile.js',
+        'gulpfile.js'
     ])
     .pipe(jshint())
     .pipe(jshint.reporter('jshint-stylish'));
 });
 
 gulp.task('default', ['lint']);
+
+gulp.task('watch', function () {
+    var server = livereload();
+    gulp.watch([
+            'app/views/index.php',
+            'public/js/**/*.js',
+            'public/js/**/*.html'
+        ]).on('change', function(file) {
+            server.changed(file.path);
+        }
+    );
+});

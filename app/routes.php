@@ -11,26 +11,39 @@
 |
 */
 
-Route::get('/', function()
-{
-	return View::make('hello');
-});
+Route::group(
+    array('prefix' => 'api'),
+    function () {
+        Route::get(
+            'meals/{meal_id}/ingredients',
+            ['uses' => 'MealController@getMealIngredients']
+        )->where('meal_id', '[0-9]+');
 
-Route::resource('meal', 'MealController');
+        Route::resource('meals', 'MealController');
 
-Route::get(
-    'meal/{meal_id}/ingredients',
-    ['uses' => 'MealController@getMealIngredients']
-)->where('meal_id', '[0-9]+');
+        Route::get(
+            'ingredients/units',
+            ['uses' => 'IngredientController@getUnits']
+        );
 
-Route::get(
-    'ingredient/units',
-    ['uses' => 'IngredientController@getUnits']
+        Route::get(
+            'ingredients/names',
+            ['uses' => 'IngredientController@getNames']
+        );
+
+        Route::resource('ingredients', 'IngredientController');
+    }
 );
 
 Route::get(
-    'ingredient/names',
-    ['uses' => 'IngredientController@getNames']
+    '/',
+    function () {
+        return View::make('index');
+    }
 );
 
-Route::resource('ingredient', 'IngredientController');
+App::missing(
+    function () {
+        return View::make('index');
+    }
+);

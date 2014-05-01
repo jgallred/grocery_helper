@@ -16,11 +16,10 @@
   ],
   "dependencies": {
     "datejs": "*",
-    "bootstrap-timepicker": "~0.2.3",
-    "requirejs-text": "~2.0.10",
-    "requirejs-domready": "~2.0.1",
-    "rjs": "~2.1.8",
     "angular": "~1.2.14",
-    "angular-bootstrap": "~0.10.0"
+    "angular-bootstrap": "~0.10.0",
+    "bootstrap": "~3.1.1",
+    "angular-route": "~1.2.16",
+    "angular-resource": "~1.2.16"
   }
 }

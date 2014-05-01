@@ -10,7 +10,7 @@ Thumbs.db
 .vagrant
 /node_modules
 /nbproject
-/public/assets/bower_components
+/public/vendor/bower_components
 _ide_*
 /report
 .idea
