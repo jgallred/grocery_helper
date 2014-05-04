@@ -59,13 +59,13 @@ class IngredientController extends \RestController {
     public function getUnits()
     {
         $ingredients = $this->model->all();
-        return Response::json(array_unique($ingredients->lists('unit')));
+        return Response::json(array_values(array_unique($ingredients->lists('unit'))));
     }
 
     public function getNames()
     {
         $ingredients = $this->model->all();
-        return Response::json(array_unique($ingredients->lists('name')));
+        return Response::json(array_values(array_unique($ingredients->lists('name'))));
     }
 
 }
