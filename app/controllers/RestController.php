@@ -46,7 +46,7 @@ abstract class RestController extends \BaseController {
     }
 
     /**
-     * @return ArrayableInterface
+     * @return \Illuminate\Support\Contracts\ArrayableInterface
      */
     protected abstract function saveNewResource();
 

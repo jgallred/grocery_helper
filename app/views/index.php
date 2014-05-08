@@ -15,7 +15,7 @@
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
                     <li class="active"><a href="#">Home</a></li>
-                    <li><a href="#about">Add a Recipe</a></li>
+                    <li><a href="#about">Add a Meal</a></li>
                     <li><a href="#contact">Build a Grocery List</a></li>
                 </ul>
             </div>
@@ -39,7 +39,7 @@
 <script type="text/javascript" src="/vendor/bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
 <script type="text/ng-template" id="list.html">
     <div class="home">
-        <h3>View your Recipies</h3>
+        <h3>View your Meals</h3>
         <input type="text" ng-model="search" class="search-query" placeholder="Search">
         <table class="table">
             <thead>
@@ -50,19 +50,19 @@
             </tr>
             </thead>
             <tbody>
-            <tr ng-repeat="recipe in recipies | orderBy:name | filter:search" class="recipe">
+            <tr ng-repeat="meal in meals | orderBy:name | filter:search" class="recipe">
                 <td class="actions">
                     <div class="btn-group">
-                        <a class="btn btn-default btn-xs" ng-href="#edit/{{recipe.id}}">
+                        <a class="btn btn-default btn-xs" ng-href="#edit/{{meal.id}}">
                             <span class="glyphicon glyphicon-pencil"></span>
                         </a>
-                        <a class="btn btn-default btn-xs" ng-click="deleteRecipe('{{recipe.id}}')">
+                        <a class="btn btn-default btn-xs" ng-click="deleteRecipe($index)">
                             <span class="glyphicon glyphicon-trash"></span>
                         </a>
                     </div>
                 </td>
-                <td class="name">{{recipe.name}}</td>
-                <td class="nights">{{recipe.nights}}</td>
+                <td class="name">{{meal.name}}</td>
+                <td class="nights">{{meal.nights}}</td>
             </tr>
             </tbody>
         </table>
@@ -72,7 +72,7 @@
     <div class="edit">
         <h3>Edit</h3>
 
-        <form class="form-horizontal" role="form">
+        <form class="form-horizontal" role="form" ng-submit="saveMeal()">
             <div class="form-group">
                 <label for="recipe_name" class="col-sm-2 control-label">Name</label>
 
@@ -107,9 +107,9 @@
                     <div class="col-sm-1">of</div>
                     <div class="col-sm-4">{{ingredient.name}}</div>
                     <div class="col-sm-1">
-                        <button class="btn btn-default btn-xs" ng-click="deleteIngredient($index)">
+                        <a class="btn btn-default btn-xs" ng-click="deleteIngredient($index)">
                             <span class="glyphicon glyphicon-trash"></span>
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -133,9 +133,10 @@
                            placeholder="Name"
                            ng-model="new_ingredient.name"
                            typeahead="name.label for name in ingredient_names | filter:$viewValue"/>
-                    <button class="btn btn-default btn-xs" ng-click="addIngredient()">
+
+                    <a class="btn btn-default btn-xs" ng-click="addIngredient()">
                         <span class="glyphicon glyphicon-plus"></span>
-                    </button>
+                    </a>
                 </div>
             </div>
 
@@ -159,6 +160,7 @@
             '/api/meals/:id',
             {id: '@id'},
             {
+                update: {method: 'PUT', params: {id: '@id'}},
                 ingredients: {method: 'GET', params: {id: '@id'}, url: '/api/meals/:id/ingredients', isArray: true}
             }
         );
@@ -169,6 +171,7 @@
             '/api/ingredients/:id',
             {id: '@id'},
             {
+                update: {method: 'PUT', params: {id: '@id'}},
                 units: {method: 'GET', url: 'api/ingredients/units', isArray: true, transformResponse: function (data) {
                     var raw = angular.fromJson(data);
                     var result = [];
@@ -190,58 +193,103 @@
     }]);
 
     App.controller('ListPageCtrl', ['$scope', 'Meal', function ($scope, Meal) {
-        $scope.recipies = Meal.query();
-//            $scope.recipies = [
-//                {id:3, name : "Taco Soup", nights : 3},
-//                {id:1, name : "Chicken Corden Bleu", nights : 2},
-//                {id:4, name : "Frech Dip Sandwiches", nights : 1}
-//            ];
+        $scope.meals = Meal.query();
+
+        $scope.deleteRecipe = function(index) {
+            var meal = $scope.meals[index];
+            if (meal.id) {
+                Meal.remove({id: meal.id});
+            }
+            $scope.meals.splice(index, 1);
+        };
     }]);
 
-    App.controller('EditPageCtrl', ['$scope', '$routeParams', 'Meal', 'Ingredient', function ($scope, $routeParams, Meal, Ingredient) {
-        var meal_id = $routeParams.id;
-        $scope.recipe = Meal.get({id: meal_id});
-        $scope.ingredients = Meal.ingredients({id: meal_id});
-        $scope.new_ingredient = {name: '', size: '', unit: ''};
+    App.controller(
+        'EditPageCtrl',
+        [
+            '$scope',
+            '$routeParams',
+            'Meal',
+            'Ingredient',
+            function ($scope, $routeParams, Meal, Ingredient) {
+                var meal_id = $routeParams.id;
+                $scope.meal = Meal.get({id: meal_id});
+                $scope.ingredients = Meal.ingredients({id: meal_id});
+                $scope.new_ingredient = {name: '', size: '', unit: ''};
+                $scope.ingredient_names = Ingredient.names();
+                $scope.ingredient_units = Ingredient.units();
+                $scope.ingredients_to_delete = [];
+                $scope.ingredients_to_insert = [];
 
-        $scope.ingredient_names = Ingredient.names();
-        $scope.ingredient_units = Ingredient.units();
-
-        function in_list(arr, item) {
-            for (var i = 0, length = arr.length; i < length; i++) {
-                if (arr[i].label === item) {
-                    return true;
+                function in_list(arr, item) {
+                    for (var i = 0, length = arr.length; i < length; i++) {
+                        if (arr[i].label === item) {
+                            return true;
+                        }
+                    }
+                    return false;
                 }
+
+                function add_to_list(arr, item) {
+                    if (!in_list(arr, item)) {
+                        arr.push({label: item});
+                    }
+                }
+
+                function addIngredientToTypeaheads(ingredient) {
+                    add_to_list($scope.ingredient_names, ingredient.name);
+                    add_to_list($scope.ingredient_units, ingredient.unit);
+                }
+
+                function persistIngredients() {
+                    angular.forEach($scope.ingredients_to_delete, function (ingredient) {
+                        Ingredient.remove({id: ingredient.id});
+                    });
+
+                    angular.forEach($scope.ingredients_to_insert, function (ingredient) {
+                        ingredient.$save();
+                    });
+                }
+
+                function clearNewIngredient() {
+                    $scope.new_ingredient.name = '';
+                    $scope.new_ingredient.size = '';
+                    $scope.new_ingredient.unit = '';
+                }
+
+                $scope.addIngredient = function () {
+                    var new_ingredient = $scope.new_ingredient;
+
+                    var ingredient = new Ingredient({
+                        name: new_ingredient.name,
+                        size: new_ingredient.size,
+                        unit: new_ingredient.unit,
+                        meal_id: meal_id
+                    });
+
+                    $scope.ingredients_to_insert.push(ingredient);
+                    $scope.ingredients.push(ingredient);
+
+                    addIngredientToTypeaheads(ingredient);
+
+                    clearNewIngredient();
+                };
+
+                $scope.deleteIngredient = function (index) {
+                    var ingredient = $scope.ingredients[index];
+                    if (ingredient.id) {
+                        $scope.ingredients_to_delete.push(ingredient);
+                    }
+                    $scope.ingredients.splice(index, 1);
+                };
+
+                $scope.saveMeal = function () {
+                    persistIngredients();
+                    $scope.meal.id ? $scope.meal.$update() : $scope.meal.$save();
+                };
             }
-            return false;
-        }
-
-        function add_to_list(arr, item) {
-            if (!in_list(arr, item)) {
-                arr.push({label:item});
-            }
-        }
-
-        $scope.addIngredient = function () {
-            var new_ingredient = $scope.new_ingredient;
-            $scope.ingredients.push({name: new_ingredient.name, size: new_ingredient.size, unit: new_ingredient.unit, meal_id: meal_id});
-
-            add_to_list($scope.ingredient_names, new_ingredient.name);
-            add_to_list($scope.ingredient_units, new_ingredient.unit);
-
-            $scope.new_ingredient.name = '';
-            $scope.new_ingredient.size = '';
-            $scope.new_ingredient.unit = '';
-        };
-
-        $scope.deleteIngredient = function (index) {
-            var ingredient = $scope.ingredients[index];
-            if (ingredient.id) {
-                //TODO Will need to be dumped
-            }
-            $scope.ingredients.splice(index, 1);
-        };
-    }]);
+        ]
+    );
 
     App.config(function ($routeProvider) {
         $routeProvider
