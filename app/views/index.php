@@ -82,7 +82,7 @@
                            id="recipe_name"
                            placeholder="Name"
                            maxlength="100"
-                           ng-model="recipe.name">
+                           ng-model="meal.name">
                 </div>
             </div>
 
@@ -90,7 +90,7 @@
                 <label for="recipe_nights" class="col-sm-2 control-label">Nights</label>
 
                 <div class="col-sm-10">
-                    <select class="form-control" id="recipe_nights" ng-model="recipe.nights">
+                    <select class="form-control" id="recipe_nights" ng-model="meal.nights">
                         <option value="1" selected>1</option>
                         <option value="2">2</option>
                         <option value="3">3</option>
