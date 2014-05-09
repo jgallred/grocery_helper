@@ -15,8 +15,8 @@
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
                     <li class="active"><a href="#">Home</a></li>
-                    <li><a href="#about">Add a Meal</a></li>
-                    <li><a href="#contact">Build a Grocery List</a></li>
+                    <li><a href="#/edit/new">Add a Meal</a></li>
+                    <li><a href="#/build">Build a Grocery List</a></li>
                 </ul>
             </div>
             <!--/.nav-collapse -->
@@ -195,7 +195,7 @@
     App.controller('ListPageCtrl', ['$scope', 'Meal', function ($scope, Meal) {
         $scope.meals = Meal.query();
 
-        $scope.deleteRecipe = function(index) {
+        $scope.deleteRecipe = function (index) {
             var meal = $scope.meals[index];
             if (meal.id) {
                 Meal.remove({id: meal.id});
@@ -211,10 +211,12 @@
             '$routeParams',
             'Meal',
             'Ingredient',
-            function ($scope, $routeParams, Meal, Ingredient) {
+            '$location',
+            function ($scope, $routeParams, Meal, Ingredient, $location) {
                 var meal_id = $routeParams.id;
-                $scope.meal = Meal.get({id: meal_id});
-                $scope.ingredients = Meal.ingredients({id: meal_id});
+                var is_new = meal_id === 'new';
+                $scope.meal = !is_new ? Meal.get({id: meal_id}) : new Meal();
+                $scope.ingredients = !is_new ? Meal.ingredients({id: meal_id}) : [];
                 $scope.new_ingredient = {name: '', size: '', unit: ''};
                 $scope.ingredient_names = Ingredient.names();
                 $scope.ingredient_units = Ingredient.units();
@@ -264,7 +266,7 @@
                         name: new_ingredient.name,
                         size: new_ingredient.size,
                         unit: new_ingredient.unit,
-                        meal_id: meal_id
+                        meal_id: $scope.meal.id
                     });
 
                     $scope.ingredients_to_insert.push(ingredient);
@@ -284,8 +286,21 @@
                 };
 
                 $scope.saveMeal = function () {
-                    persistIngredients();
-                    $scope.meal.id ? $scope.meal.$update() : $scope.meal.$save();
+                    if (!is_new) {
+                        persistIngredients();
+                    }
+
+                    var request = $scope.meal.id ? $scope.meal.$update() : $scope.meal.$save();
+
+                    request.then(function (meal) {
+                        if (is_new) {
+                            angular.forEach($scope.ingredients_to_insert, function (ingredient) {
+                                ingredient.meal_id = meal.id;
+                            });
+                            persistIngredients();
+                        }
+                        $location.path('/');
+                    });
                 };
             }
         ]
