@@ -72,7 +72,7 @@
     <div class="edit">
         <h3>Edit</h3>
 
-        <form class="form-horizontal" role="form" ng-submit="saveMeal()">
+        <form class="form-horizontal" role="form" ng-submit="saveMeal()" name="addMealForm">
             <div class="form-group">
                 <label for="recipe_name" class="col-sm-2 control-label">Name</label>
 
@@ -82,7 +82,10 @@
                            id="recipe_name"
                            placeholder="Name"
                            maxlength="100"
-                           ng-model="meal.name">
+                           ng-model="meal.name"
+                           required
+                           ng-minlength="5"
+                           ng-maxlength="100"/>
                 </div>
             </div>
 
@@ -90,7 +93,7 @@
                 <label for="recipe_nights" class="col-sm-2 control-label">Nights</label>
 
                 <div class="col-sm-10">
-                    <select class="form-control" id="recipe_nights" ng-model="meal.nights">
+                    <select class="form-control" id="recipe_nights" ng-model="meal.nights" required>
                         <option value="1" selected>1</option>
                         <option value="2">2</option>
                         <option value="3">3</option>
@@ -134,7 +137,7 @@
                            ng-model="new_ingredient.name"
                            typeahead="name.label for name in ingredient_names | filter:$viewValue"/>
 
-                    <a class="btn btn-default btn-xs" ng-click="addIngredient()">
+                    <a class="btn btn-default btn-xs" ng-click="addIngredient()" ng-disabled="!validIngredient()">
                         <span class="glyphicon glyphicon-plus"></span>
                     </a>
                 </div>
@@ -144,7 +147,7 @@
 
             <div class="form-group">
                 <div class="col-sm-offset-2 col-sm-10">
-                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="submit" class="btn btn-primary" ng-disabled="!addMealForm.$valid">Save</button>
                     <a class="btn btn-default" href="#">Cancel</a>
                 </div>
             </div>
@@ -258,6 +261,12 @@
                     $scope.new_ingredient.size = '';
                     $scope.new_ingredient.unit = '';
                 }
+
+                $scope.validIngredient = function () {
+                    return $scope.new_ingredient.name.length > 0
+                        && $scope.new_ingredient.size.length > 0
+                        && $scope.new_ingredient.unit.length > 0;
+                };
 
                 $scope.addIngredient = function () {
                     var new_ingredient = $scope.new_ingredient;
