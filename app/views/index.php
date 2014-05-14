@@ -7,16 +7,16 @@
 </head>
 <body>
 <div>
-    <div class="navbar navbar-default navbar-static-top" role="navigation">
+    <div class="navbar navbar-default navbar-static-top" role="navigation" ng-controller="HeaderController">
         <div class="container">
             <div class="navbar-header">
                 <a class="navbar-brand" href="#">Project name</a>
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li class="active"><a href="#">Home</a></li>
-                    <li><a href="#/edit/new">Add a Meal</a></li>
-                    <li><a href="#/build">Build a Grocery List</a></li>
+                    <li ng-class="{active: isActive('/')}"><a href="#">Home</a></li>
+                    <li ng-class="{active: isActive('/edit/new')}"><a href="#/edit/new">Add a Meal</a></li>
+                    <li ng-class="{active: isActive('/build')}"><a href="#/build">Build a Grocery List</a></li>
                 </ul>
             </div>
             <!--/.nav-collapse -->
@@ -154,181 +154,341 @@
         </form>
     </div>
 </script>
+<script type="text/ng-template" id="build.html">
+    <div class="build" ng-show="building">
+        <h3>Create a Grocery List</h3>
+        <table class="table">
+            <thead>
+            <tr>
+                <td></td>
+                <td>Name</td>
+                <td>Nights</td>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="meal in meals | orderBy:name | filter:{selected:true}" class="recipe">
+                <td class="actions">
+                    <input type="checkbox" ng-model="meal.selected"/>
+                </td>
+                <td class="name">{{meal.name}}</td>
+                <td class="nights">{{meal.nights}}</td>
+            </tr>
+            <tr class="recipe">
+                <td class="actions"></td>
+                <td class="name"></td>
+                <td class="nights">Total:{{getTotalSelectedNights()}}</td>
+            </tr>
+            </tbody>
+        </table>
+        <form class="form-inline" role="form">
+            <div class="form-group">
+                <input type="text" ng-model="search" class="search-query" placeholder="Filter...">
+                <a class="btn btn-primary" ng-click="generateGroceryList()">Build List</a>
+            </div>
+        </form>
+        <br/>
+        <h4>Available Meals</h4>
+        <table class="table">
+            <thead>
+            <tr>
+                <td></td>
+                <td>Name</td>
+                <td>Nights</td>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="meal in meals | orderBy:name | filter:{selected:false} | filter:search" class="recipe">
+                <td class="actions">
+                    <input type="checkbox" ng-model="meal.selected"/>
+                </td>
+                <td class="name">{{meal.name}}</td>
+                <td class="nights">{{meal.nights}}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    </div>
+</script>
+<script type="text/ng-template" id="grocery_list.html">
+    <div class="grocery_list">
+        <h3>Your Grocery List</h3>
+        <ul>
+            <li ng-repeat="meal in meals | orderBy:name">{{meal.name}}</li>
+        </ul>
+        <h4>Required Ingredients</h4>
+        <ul>
+            <li ng-repeat="ingredient in ingredients | orderBy:name">{{ingredient.size}} {{ingredient.unit}} of {{ingredient.name}}</li>
+        </ul>
+    </div>
+    </div>
+</script>
+
 
 <script type="text/javascript">
-    var App = angular.module('app', ['ngRoute', 'ngResource', 'ui.bootstrap']);
+var App = angular.module('app', ['ngRoute', 'ngResource', 'ui.bootstrap']);
 
-    App.factory('Meal', ['$resource', function ($resource) {
-        return $resource(
-            '/api/meals/:id',
-            {id: '@id'},
-            {
-                update: {method: 'PUT', params: {id: '@id'}},
-                ingredients: {method: 'GET', params: {id: '@id'}, url: '/api/meals/:id/ingredients', isArray: true}
-            }
-        );
-    }]);
+App.factory('Meal', ['$resource', function ($resource) {
+    return $resource(
+        '/api/meals/:id',
+        {id: '@id'},
+        {
+            update: {method: 'PUT', params: {id: '@id'}},
+            ingredients: {method: 'GET', params: {id: '@id'}, url: '/api/meals/:id/ingredients', isArray: true}
+        }
+    );
+}]);
 
-    App.factory('Ingredient', ['$resource', function ($resource) {
-        return $resource(
-            '/api/ingredients/:id',
-            {id: '@id'},
-            {
-                update: {method: 'PUT', params: {id: '@id'}},
-                units: {method: 'GET', url: 'api/ingredients/units', isArray: true, transformResponse: function (data) {
-                    var raw = angular.fromJson(data);
-                    var result = [];
-                    angular.forEach(raw, function (data) {
-                        result.push({label: data});
-                    });
-                    return result;
-                }},
-                names: {method: 'GET', url: 'api/ingredients/names', isArray: true, transformResponse: function (data) {
-                    var raw = angular.fromJson(data);
-                    var result = [];
-                    angular.forEach(raw, function (data) {
-                        result.push({label: data});
-                    });
-                    return result;
-                }}
-            }
-        );
-    }]);
+App.factory('Ingredient', ['$resource', function ($resource) {
+    return $resource(
+        '/api/ingredients/:id',
+        {id: '@id'},
+        {
+            update: {method: 'PUT', params: {id: '@id'}},
+            units: {method: 'GET', url: 'api/ingredients/units', isArray: true, transformResponse: function (data) {
+                var raw = angular.fromJson(data);
+                var result = [];
+                angular.forEach(raw, function (data) {
+                    result.push({label: data});
+                });
+                return result;
+            }},
+            names: {method: 'GET', url: 'api/ingredients/names', isArray: true, transformResponse: function (data) {
+                var raw = angular.fromJson(data);
+                var result = [];
+                angular.forEach(raw, function (data) {
+                    result.push({label: data});
+                });
+                return result;
+            }}
+        }
+    );
+}]);
 
-    App.controller('ListPageCtrl', ['$scope', 'Meal', function ($scope, Meal) {
-        $scope.meals = Meal.query();
+App.controller('HeaderController', ['$scope', '$location', function ($scope, $location) {
+    $scope.isActive = function (viewLocation) {
+        return viewLocation === $location.path();
+    };
+}]);
 
-        $scope.deleteRecipe = function (index) {
-            var meal = $scope.meals[index];
-            if (meal.id) {
-                Meal.remove({id: meal.id});
-            }
-            $scope.meals.splice(index, 1);
-        };
-    }]);
+App.controller('ListPageCtrl', ['$scope', 'Meal', function ($scope, Meal) {
+    $scope.meals = Meal.query();
 
-    App.controller(
-        'EditPageCtrl',
-        [
-            '$scope',
-            '$routeParams',
-            'Meal',
-            'Ingredient',
-            '$location',
-            function ($scope, $routeParams, Meal, Ingredient, $location) {
-                var meal_id = $routeParams.id;
-                var is_new = meal_id === 'new';
-                $scope.meal = !is_new ? Meal.get({id: meal_id}) : new Meal();
-                $scope.ingredients = !is_new ? Meal.ingredients({id: meal_id}) : [];
-                $scope.new_ingredient = {name: '', size: '', unit: ''};
-                $scope.ingredient_names = Ingredient.names();
-                $scope.ingredient_units = Ingredient.units();
-                $scope.ingredients_to_delete = [];
-                $scope.ingredients_to_insert = [];
+    $scope.deleteRecipe = function (index) {
+        var meal = $scope.meals[index];
+        if (meal.id) {
+            Meal.remove({id: meal.id});
+        }
+        $scope.meals.splice(index, 1);
+    };
+}]);
 
-                function in_list(arr, item) {
-                    for (var i = 0, length = arr.length; i < length; i++) {
-                        if (arr[i].label === item) {
-                            return true;
-                        }
-                    }
-                    return false;
-                }
+App.controller(
+    'EditPageCtrl',
+    [
+        '$scope',
+        '$routeParams',
+        'Meal',
+        'Ingredient',
+        '$location',
+        function ($scope, $routeParams, Meal, Ingredient, $location) {
+            var meal_id = $routeParams.id;
+            var is_new = meal_id === 'new';
+            $scope.meal = !is_new ? Meal.get({id: meal_id}) : new Meal();
+            $scope.ingredients = !is_new ? Meal.ingredients({id: meal_id}) : [];
+            $scope.new_ingredient = {name: '', size: '', unit: ''};
+            $scope.ingredient_names = Ingredient.names();
+            $scope.ingredient_units = Ingredient.units();
+            $scope.ingredients_to_delete = [];
+            $scope.ingredients_to_insert = [];
 
-                function add_to_list(arr, item) {
-                    if (!in_list(arr, item)) {
-                        arr.push({label: item});
+            function in_list(arr, item) {
+                for (var i = 0, length = arr.length; i < length; i++) {
+                    if (arr[i].label === item) {
+                        return true;
                     }
                 }
+                return false;
+            }
 
-                function addIngredientToTypeaheads(ingredient) {
-                    add_to_list($scope.ingredient_names, ingredient.name);
-                    add_to_list($scope.ingredient_units, ingredient.unit);
+            function add_to_list(arr, item) {
+                if (!in_list(arr, item)) {
+                    arr.push({label: item});
+                }
+            }
+
+            function addIngredientToTypeaheads(ingredient) {
+                add_to_list($scope.ingredient_names, ingredient.name);
+                add_to_list($scope.ingredient_units, ingredient.unit);
+            }
+
+            function persistIngredients() {
+                angular.forEach($scope.ingredients_to_delete, function (ingredient) {
+                    Ingredient.remove({id: ingredient.id});
+                });
+
+                angular.forEach($scope.ingredients_to_insert, function (ingredient) {
+                    ingredient.$save();
+                });
+            }
+
+            function clearNewIngredient() {
+                $scope.new_ingredient.name = '';
+                $scope.new_ingredient.size = '';
+                $scope.new_ingredient.unit = '';
+            }
+
+            $scope.validIngredient = function () {
+                return $scope.new_ingredient.name.length > 0
+                    && $scope.new_ingredient.size.length > 0
+                    && $scope.new_ingredient.unit.length > 0;
+            };
+
+            $scope.addIngredient = function () {
+                var new_ingredient = $scope.new_ingredient;
+
+                var ingredient = new Ingredient({
+                    name: new_ingredient.name,
+                    size: new_ingredient.size,
+                    unit: new_ingredient.unit,
+                    meal_id: $scope.meal.id
+                });
+
+                $scope.ingredients_to_insert.push(ingredient);
+                $scope.ingredients.push(ingredient);
+
+                addIngredientToTypeaheads(ingredient);
+
+                clearNewIngredient();
+            };
+
+            $scope.deleteIngredient = function (index) {
+                var ingredient = $scope.ingredients[index];
+                if (ingredient.id) {
+                    $scope.ingredients_to_delete.push(ingredient);
+                }
+                $scope.ingredients.splice(index, 1);
+            };
+
+            $scope.saveMeal = function () {
+                if (!is_new) {
+                    persistIngredients();
                 }
 
-                function persistIngredients() {
-                    angular.forEach($scope.ingredients_to_delete, function (ingredient) {
-                        Ingredient.remove({id: ingredient.id});
-                    });
+                var request = $scope.meal.id ? $scope.meal.$update() : $scope.meal.$save();
 
-                    angular.forEach($scope.ingredients_to_insert, function (ingredient) {
-                        ingredient.$save();
-                    });
-                }
-
-                function clearNewIngredient() {
-                    $scope.new_ingredient.name = '';
-                    $scope.new_ingredient.size = '';
-                    $scope.new_ingredient.unit = '';
-                }
-
-                $scope.validIngredient = function () {
-                    return $scope.new_ingredient.name.length > 0
-                        && $scope.new_ingredient.size.length > 0
-                        && $scope.new_ingredient.unit.length > 0;
-                };
-
-                $scope.addIngredient = function () {
-                    var new_ingredient = $scope.new_ingredient;
-
-                    var ingredient = new Ingredient({
-                        name: new_ingredient.name,
-                        size: new_ingredient.size,
-                        unit: new_ingredient.unit,
-                        meal_id: $scope.meal.id
-                    });
-
-                    $scope.ingredients_to_insert.push(ingredient);
-                    $scope.ingredients.push(ingredient);
-
-                    addIngredientToTypeaheads(ingredient);
-
-                    clearNewIngredient();
-                };
-
-                $scope.deleteIngredient = function (index) {
-                    var ingredient = $scope.ingredients[index];
-                    if (ingredient.id) {
-                        $scope.ingredients_to_delete.push(ingredient);
-                    }
-                    $scope.ingredients.splice(index, 1);
-                };
-
-                $scope.saveMeal = function () {
-                    if (!is_new) {
+                request.then(function (meal) {
+                    if (is_new) {
+                        angular.forEach($scope.ingredients_to_insert, function (ingredient) {
+                            ingredient.meal_id = meal.id;
+                        });
                         persistIngredients();
                     }
+                    $location.path('/');
+                });
+            };
+        }
+    ]
+);
 
-                    var request = $scope.meal.id ? $scope.meal.$update() : $scope.meal.$save();
-
-                    request.then(function (meal) {
-                        if (is_new) {
-                            angular.forEach($scope.ingredients_to_insert, function (ingredient) {
-                                ingredient.meal_id = meal.id;
-                            });
-                            persistIngredients();
-                        }
-                        $location.path('/');
-                    });
-                };
-            }
-        ]
-    );
-
-    App.config(function ($routeProvider) {
-        $routeProvider
-            .when('/', {
-                controller: 'ListPageCtrl',
-                templateUrl: 'list.html'
-            })
-            .when('/edit/:id', {
-                controller: 'EditPageCtrl',
-                templateUrl: 'edit.html'
-            })
-            .otherwise({
-                redirectTo: '/'
+App.controller(
+    'BuildPageCtrl',
+    [
+        '$scope',
+        '$location',
+        'Meal',
+        function ($scope, $location, Meal) {
+            $scope.meals = Meal.query(function () {
+                angular.forEach($scope.meals, function (meal) {
+                    meal.selected = false;
+                });
             });
-    });
+
+            $scope.building = true;
+
+            function filterSelectedMeals() {
+                var meals = [];
+                angular.forEach($scope.meals, function (meal) {
+                    if (meal.selected) {
+                        meals.push(meal);
+                    }
+                });
+                return meals;
+            };
+
+            $scope.getTotalSelectedNights = function () {
+                var total = 0;
+                angular.forEach(filterSelectedMeals(), function (meal) {
+                    total += meal.nights;
+                });
+                return total;
+            };
+
+            $scope.generateGroceryList = function () {
+                var meal_ids = [];
+                angular.forEach(filterSelectedMeals(), function (meal) {
+                    meal_ids.push(meal.id);
+                });
+                $location.path('/grocery');
+                $location.search('ids', meal_ids);
+            };
+        }
+    ]
+);
+
+App.controller(
+    'GroceryPageCtrl',
+    [
+        '$scope',
+        '$routeParams',
+        'Meal',
+        function ($scope, $routeParams, Meal) {
+            var meal_ids = [],
+                raw_ids = angular.isArray($routeParams.ids) ? $routeParams.ids : [$routeParams.ids];
+            $scope.meals = [];
+            $scope.ingredients = [];
+
+            angular.forEach(raw_ids, function (id) {
+                meal_ids.push(parseInt(id, 10));
+                Meal.ingredients({id: id}, function (ingredients) {
+                    angular.forEach(ingredients, function (ingredient) {
+                        $scope.ingredients.push(ingredient);
+                    });
+                });
+            });
+
+            Meal.query(function (meals) {
+                angular.forEach(meals, function (meal) {
+                    if (meal_ids.indexOf(meal.id) >= 0) {
+                        $scope.meals.push(meal);
+                    }
+                });
+            });
+        }
+    ]
+);
+
+App.config(function ($routeProvider) {
+    $routeProvider
+        .when('/', {
+            controller: 'ListPageCtrl',
+            templateUrl: 'list.html'
+        })
+        .when('/edit/:id', {
+            controller: 'EditPageCtrl',
+            templateUrl: 'edit.html'
+        })
+        .when('/build', {
+            controller: 'BuildPageCtrl',
+            templateUrl: 'build.html'
+        })
+        .when('/grocery', {
+            controller: 'GroceryPageCtrl',
+            templateUrl: 'grocery_list.html'
+        })
+        .otherwise({
+            redirectTo: '/'
+        });
+});
 </script>
 </body>
 </html>
