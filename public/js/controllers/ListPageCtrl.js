@@ -3,9 +3,11 @@ App.controller('ListPageCtrl', ['$scope', 'Meal', function ($scope, Meal) {
 
     $scope.deleteRecipe = function (index) {
         var meal = $scope.meals[index];
-        if (meal.id) {
-            Meal.remove({id: meal.id});
+        if (confirm("Are you sure you want to delete " + meal.name + "?")) {
+            if (meal.id) {
+                Meal.remove({id: meal.id});
+            }
+            $scope.meals.splice(index, 1);
         }
-        $scope.meals.splice(index, 1);
     };
 }]);
