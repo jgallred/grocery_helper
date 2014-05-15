@@ -9,7 +9,7 @@ App.controller(
         function ($scope, $routeParams, Meal, Ingredient, $location) {
             var meal_id = $routeParams.id;
             var is_new = meal_id === 'new';
-            $scope.meal = !is_new ? Meal.get({id: meal_id}) : new Meal();
+            $scope.meal = !is_new ? Meal.get({id: meal_id}) : new Meal({nights:0});
             $scope.ingredients = !is_new ? Meal.ingredients({id: meal_id}) : [];
             $scope.new_ingredient = {name: '', size: '', unit: ''};
             $scope.ingredient_names = Ingredient.names();
