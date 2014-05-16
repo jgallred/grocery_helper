@@ -79,10 +79,15 @@ App.controller(
 
             $scope.deleteIngredient = function (index) {
                 var ingredient = $scope.ingredients[index];
+                $scope.ingredients.splice(index, 1);
                 if (ingredient.id) {
                     $scope.ingredients_to_delete.push(ingredient);
+                } else {
+                    var sched_insert = $scope.ingredients_to_insert.indexOf(ingredient);
+                    if (sched_insert >= 0) {
+                        $scope.ingredients_to_insert.splice(sched_insert, 1);
+                    }
                 }
-                $scope.ingredients.splice(index, 1);
             };
 
             $scope.saveMeal = function () {
