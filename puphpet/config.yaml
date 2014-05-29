@@ -1,33 +1,36 @@
 ---
 vagrantfile-local:
     vm:
-        box: debian-wheezy72-x64-vbox43
-        box_url: 'http://box.puphpet.com/debian-wheezy72-x64-vbox43.box'
+        box: puphpet/ubuntu1404-x64
+        box_url: puphpet/ubuntu1404-x64
         hostname: null
+        memory: '512'
+        chosen_provider: virtualbox
         network:
             private_network: 192.168.56.103
             forwarded_port:
-                ZzWGUSjNNHOC:
+                qplKT1EEOgEu:
                     host: '5812'
                     guest: '22'
         provider:
             virtualbox:
                 modifyvm:
                     natdnshostresolver1: on
-                    memory: '512'
                 setextradata:
                     VBoxInternal2/SharedFoldersEnableSymlinksCreate/v-root: 1
+            vmware:
+                numvcpus: 1
         provision:
             puppet:
                 manifests_path: puphpet/puppet
                 manifest_file: manifest.pp
+                module_path: puphpet/puppet/modules
                 options:
                     - '--verbose'
                     - '--hiera_config /vagrant/puphpet/puppet/hiera.yaml'
                     - '--parser future'
         synced_folder:
-            AOafFlQa5RUt:
-                id: vagrant-root
+            KqI8SaMU6hDh:
                 source: ./
                 target: /var/www/app
                 nfs: 'false'
@@ -76,7 +79,7 @@ apache:
         - php
         - rewrite
     vhosts:
-        XVnro40uTNXD:
+        j6sRu8pvL3AL:
             servername: app.192.168.56.103.xip.io
             serveraliases:
                 - www.app.192.168.56.103.xip.io
@@ -87,15 +90,40 @@ apache:
             override:
                 - All
             custom_fragment: ''
-        H8phKuD5IbxW:
+            ssl_cert: ''
+            ssl_key: ''
+            ssl_chain: ''
+            ssl_certs_dir: ''
+        pSNOb8s3X0hj:
             servername: admin.192.168.56.103.xip.io
             serveraliases:
                 - www.admin.192.168.56.103.xip.io
             docroot: /var/www/phpmyadmin
             port: '80'
             custom_fragment: ''
+            ssl_cert: ''
+            ssl_key: ''
+            ssl_chain: ''
+            ssl_certs_dir: ''
     mod_pagespeed: 0
     mod_spdy: 0
+nginx:
+    install: 0
+    vhosts:
+        PHDndMJgUGbI:
+            server_name: awesome.dev
+            server_aliases:
+                - www.awesome.dev
+            www_root: /var/www/awesome.dev
+            listen_port: '80'
+            index_files:
+                - index.html
+                - index.htm
+                - index.php
+            envvars:
+                - 'APP_ENV dev'
+            ssl_cert: ''
+            ssl_key: ''
 php:
     install: '1'
     version: '55'
@@ -130,10 +158,10 @@ drush:
 mysql:
     install: '1'
     root_password: password
-    phpmyadmin: '1'
+    phpmyadmin: 0
     adminer: 0
     databases:
-        CDIbzcdDm0Iz:
+        FLXTEGcCzQ84:
             grant:
                 - ALL
             name: meals
