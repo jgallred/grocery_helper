@@ -13,10 +13,10 @@
         <tr ng-repeat="meal in meals | orderBy:name | filter:search" class="recipe">
             <td class="actions">
                 <div class="btn-group">
-                    <a class="btn btn-default btn-xs" ng-href="#edit/{{meal.id}}">
+                    <a class="btn btn-default btn-xs edit-meal" ng-href="#edit/{{meal.id}}">
                         <span class="glyphicon glyphicon-pencil"></span>
                     </a>
-                    <a class="btn btn-default btn-xs" ng-click="deleteRecipe($index)">
+                    <a class="btn btn-default btn-xs delete-meal" ng-click="deleteRecipe($index)">
                         <span class="glyphicon glyphicon-trash"></span>
                     </a>
                 </div>
