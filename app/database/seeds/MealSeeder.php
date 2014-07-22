@@ -1,6 +1,14 @@
 <?php
 
-class MealSeeder extends Seeder {
+class MealSeeder extends Seeder
+{
+    const NUMBER_OF_MEALS = 100;
+
+    const MAX_NUM_OF_INGREDIENTS_PER_MEAL = 15;
+
+    const SEED = 77;
+
+    private $allowed_units = ['teaspoon', 'tablespoon', 'cups', 'pounds', 'ounces', 'quarts', 'can', 'bag', 'package'];
 
     /**
      * Run the database seeds.
@@ -11,10 +19,8 @@ class MealSeeder extends Seeder {
     {
         DB::table('meals')->delete();
 
-        $meals = File::get(__DIR__ . '/meals_provider.json');
-        $meals = json_decode($meals);
+        $meals = $this->getMealData();
 
-        $db_meal = [];
         foreach ($meals as $meal) {
             $id = DB::table('meals')->insertGetId(["name" => $meal->name, "nights" => $meal->nights]);
 
@@ -32,4 +38,35 @@ class MealSeeder extends Seeder {
         }
     }
 
+    public function getMealData()
+    {
+        $faker = Faker\Factory::create();
+        $faker->seed(self::SEED);
+
+        $meals = [];
+
+        for($i = 0; $i < self::NUMBER_OF_MEALS; $i++) {
+            $meal = new stdClass();
+
+            $meal->name = $faker->sentence(6);
+            $meal->nights = $faker->numberBetween(1,5);
+            $meal->ingredients = [];
+
+            $number_of_ingredients = $faker->numberBetween(3, self::MAX_NUM_OF_INGREDIENTS_PER_MEAL);
+
+            for($j = 0; $j < $number_of_ingredients; $j++) {
+                $ingredient = new stdClass();
+
+                $ingredient->name = $faker->word;
+                $ingredient->size = $faker->randomDigit;
+                $ingredient->unit = $faker->randomElement($this->allowed_units);
+
+                $meal->ingredients []= $ingredient;
+            }
+
+            $meals []= $meal;
+        }
+
+        return $meals;
+    }
 }
