@@ -14,3 +14,11 @@ Thumbs.db
 _ide_*
 /report
 .idea
+
+#puphpet provisioning files
+/puphpet/files/dot/.bash_git
+/puphpet/files/dot/ssh
+/puphpet/puppet
+/puphpet/.gitattributes
+/puphpet/shell/important-notices.*
+/puphpet/shell/ssh-keygen.sh
