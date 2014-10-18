@@ -59,13 +59,15 @@
                        class="form-control input-sm"
                        placeholder="Unit"
                        ng-model="new_ingredient.unit"
-                       data-typeahead="unit.label for unit in ingredient_units | filter:$viewValue"/>
+                       data-typeahead-min-length="2"
+                       data-typeahead="unit for unit in units=(ingredient_units | filter:$viewValue)"/>
                 of
                 <input type="text"
                        class="form-control input-sm"
                        placeholder="Name"
                        ng-model="new_ingredient.name"
-                       data-typeahead="name.label for name in ingredient_names | filter:$viewValue"/>
+                       data-typeahead-min-length="2"
+                       data-typeahead="name for name in names=(ingredient_names | filter:$viewValue)"/>
 
                 <a class="btn btn-default btn-xs" ng-click="addIngredient()" ng-disabled="!validIngredient()">
                     <span class="glyphicon glyphicon-plus"></span>
@@ -78,7 +80,7 @@
         <div class="form-group">
             <div class="col-sm-offset-2 col-sm-10">
                 <button type="submit" class="btn btn-primary" ng-disabled="!addMealForm.$valid">Save</button>
-                <a class="btn btn-default" href="#">Cancel</a>
+                <a class="btn btn-default" ng-click="cancel()">Cancel</a>
             </div>
         </div>
     </form>

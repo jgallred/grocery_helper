@@ -5,8 +5,8 @@
     </ul>
     <h4>Required Ingredients</h4>
     <ul>
-        <li ng-repeat="ingredient in ingredients | orderBy:['name', 'unit', 'size']">{{ingredient.size}} {{ingredient.unit}} of
-            {{ingredient.name}}
+        <li ng-repeat="ingredient in ingredients | orderBy:['name', 'unit', 'size']">
+            {{ingredient.size}} {{ingredient.unit}} of {{ingredient.name}}
         </li>
     </ul>
 </div>

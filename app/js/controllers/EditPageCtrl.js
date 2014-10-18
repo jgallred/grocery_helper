@@ -4,31 +4,42 @@ App.controller(
         '$scope',
         '$routeParams',
         'Meal',
+        'MealService',
         'Ingredient',
+        'IngredientService',
         '$location',
-        function ($scope, $routeParams, Meal, Ingredient, $location) {
-            var meal_id = $routeParams.id;
-            var is_new = meal_id === 'new';
-            $scope.meal = !is_new ? Meal.get({id: meal_id}) : new Meal({nights:0});
-            $scope.ingredients = !is_new ? Meal.ingredients({id: meal_id}) : [];
+        function ($scope, $routeParams, Meal, MealService, Ingredient, IngredientService, $location) {
+            var meal_id = parseInt($routeParams.id, 10),
+                is_new = meal_id === 'new';
+
+            $scope.meal = new Meal({nights:0});
+            $scope.ingredients = [];
+
+            if (!is_new) {
+                MealService.find(meal_id).then(function (meal) {
+                    $scope.meal = meal;
+                    return meal;
+                }).then(function (meal) {
+                    return IngredientService.ingredientsForMeal(meal);
+                }).then(function (ingredients) {
+                    $scope.ingredients = ingredients;
+                });
+            }
+
+            $scope.ingredients = [];
             $scope.new_ingredient = {name: '', size: '', unit: ''};
-            $scope.ingredient_names = Ingredient.names();
-            $scope.ingredient_units = Ingredient.units();
+            $scope.ingredient_names = IngredientService.names();
+            $scope.ingredient_units = IngredientService.units();
             $scope.ingredients_to_delete = [];
             $scope.ingredients_to_insert = [];
 
             function in_list(arr, item) {
-                for (var i = 0, length = arr.length; i < length; i++) {
-                    if (arr[i].label === item) {
-                        return true;
-                    }
-                }
-                return false;
+                return arr.indexOf(item) >= 0;
             }
 
             function add_to_list(arr, item) {
                 if (!in_list(arr, item)) {
-                    arr.push({label: item});
+                    arr.push(item);
                 }
             }
 
@@ -39,11 +50,11 @@ App.controller(
 
             function persistIngredients() {
                 angular.forEach($scope.ingredients_to_delete, function (ingredient) {
-                    Ingredient.remove({id: ingredient.id});
+                    IngredientService.remove(ingredient);
                 });
 
                 angular.forEach($scope.ingredients_to_insert, function (ingredient) {
-                    ingredient.$save();
+                    IngredientService.add(ingredient);
                 });
             }
 
@@ -91,21 +102,26 @@ App.controller(
             };
 
             $scope.saveMeal = function () {
+                var method = 'add';
+
                 if (!is_new) {
                     persistIngredients();
+                    method = 'update';
                 }
 
-                var request = $scope.meal.id ? $scope.meal.$update() : $scope.meal.$save();
-
-                request.then(function (meal) {
+                MealService[method]($scope.meal).then(function (meal) {
                     if (is_new) {
                         angular.forEach($scope.ingredients_to_insert, function (ingredient) {
                             ingredient.meal_id = meal.id;
                         });
                         persistIngredients();
                     }
-                    $location.path('/');
+                    $scope.cancel();
                 });
+            };
+
+            $scope.cancel = function () {
+                $location.path('/');
             };
         }
     ]

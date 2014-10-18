@@ -1,0 +1,60 @@
+<!doctype html>
+<!--suppress HtmlUnknownTarget, HtmlUnknownAnchorTarget -->
+<html lang="en" ng-app="app" ng-csp>
+<head>
+    <meta charset="UTF-8">
+    <title>Grocery Planner</title>
+    <link rel="stylesheet" href="vendor/bootstrap/dist/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="vendor/sweetalert/lib/sweet-alert.css">
+</head>
+<body>
+<div>
+    <div class="navbar navbar-default navbar-static-top" ng-controller="HeaderCtrl">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">Grocery Planner</a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li ng-class="{active: isActive('/')}">
+                        <a ng-click="goTo('#')">Home</a>
+                    </li>
+                    <li ng-class="{active: isActive('/edit/new')}">
+                        <a ng-click="goTo('/edit/new')">Add a Meal</a>
+                    </li>
+                    <li ng-class="{active: isActive('/build')}">
+                        <a ng-click="goTo('/build')">Build a Grocery List</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-8" ng-view></div>
+            <div class="col-md-2"></div>
+        </div>
+    </div>
+</div>
+<script src="vendor/sweetalert/lib/sweet-alert.min.js"></script>
+<script type="text/javascript" src="/vendor/jquery/dist/jquery.js"></script>
+<script type="text/javascript" src="/vendor/bootstrap/dist/js/bootstrap.js"></script>
+<script type="text/javascript" src="/vendor/angular/angular.js"></script>
+<script type="text/javascript" src="/vendor/angular-route/angular-route.js"></script>
+<script type="text/javascript" src="/vendor/angular-resource/angular-resource.js"></script>
+<script type="text/javascript" src="/vendor/angular-bootstrap/ui-bootstrap.js"></script>
+<script type="text/javascript" src="/vendor/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+<script type="text/javascript" src="/js/app.js"></script>
+<script type="text/javascript" src="/js/services/Meal.js"></script>
+<script type="text/javascript" src="/js/services/MealService.js"></script>
+<script type="text/javascript" src="/js/services/Ingredient.js"></script>
+<script type="text/javascript" src="/js/services/IngredientService.js"></script>
+<script type="text/javascript" src="/js/controllers/HeaderCtrl.js"></script>
+<script type="text/javascript" src="/js/controllers/ListPageCtrl.js"></script>
+<script type="text/javascript" src="/js/controllers/EditPageCtrl.js"></script>
+<script type="text/javascript" src="/js/controllers/BuildPageCtrl.js"></script>
+<script type="text/javascript" src="/js/controllers/GroceryPageCtrl.js"></script>
+<script type="text/javascript" src="/js/routes.js"></script>
+</body>
+</html>

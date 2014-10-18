@@ -1,39 +1,36 @@
+App.filter('totalNights', function () {
+    return function (meals) {
+        var sum = 0;
+
+        if (!angular.isUndefined(meals)) {
+            for (var i = 0; i < meals.length; i++) {
+                sum += meals[i].nights;
+            }
+        }
+
+        return sum;
+    };
+});
+
 App.controller(
     'BuildPageCtrl',
     [
         '$scope',
         '$location',
-        'Meal',
-        function ($scope, $location, Meal) {
-            $scope.meals = Meal.query(function () {
-                angular.forEach($scope.meals, function (meal) {
+        'MealService',
+        function ($scope, $location, MealService) {
+            MealService.all().then(function (meals) {
+                angular.forEach(meals, function (meal) {
                     meal.selected = false;
                 });
+                $scope.meals = meals;
             });
 
             $scope.building = true;
 
-            function filterSelectedMeals() {
-                var meals = [];
-                angular.forEach($scope.meals, function (meal) {
-                    if (meal.selected) {
-                        meals.push(meal);
-                    }
-                });
-                return meals;
-            }
-
-            $scope.getTotalSelectedNights = function () {
-                var total = 0;
-                angular.forEach(filterSelectedMeals(), function (meal) {
-                    total += meal.nights;
-                });
-                return total;
-            };
-
-            $scope.generateGroceryList = function () {
+            $scope.generateGroceryList = function (meals) {
                 var meal_ids = [];
-                angular.forEach(filterSelectedMeals(), function (meal) {
+                angular.forEach(meals, function (meal) {
                     meal_ids.push(meal.id);
                 });
                 $location.path('/grocery');

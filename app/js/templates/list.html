@@ -13,7 +13,7 @@
         <tr ng-repeat="meal in meals | orderBy:name | filter:search" class="recipe">
             <td class="actions">
                 <div class="btn-group">
-                    <a class="btn btn-default btn-sm edit-meal" ng-href="#edit/{{meal.id}}">
+                    <a class="btn btn-default btn-sm edit-meal" ng-click="editRecipe(meal.id)">
                         <span class="glyphicon glyphicon-pencil"></span>
                     </a>
                     <a class="btn btn-default btn-sm delete-meal" ng-click="deleteRecipe($index)">
@@ -21,7 +21,7 @@
                     </a>
                 </div>
             </td>
-            <td class="name"><a ng-href="#edit/{{meal.id}}">{{meal.name}}</a></td>
+            <td class="name"><a ng-click="editRecipe(meal.id)">{{meal.name}}</a></td>
             <td class="nights">{{meal.nights}}</td>
         </tr>
         </tbody>

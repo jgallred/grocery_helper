@@ -3,28 +3,28 @@ App.controller(
     [
         '$scope',
         '$routeParams',
-        'Meal',
-        function ($scope, $routeParams, Meal) {
-            var meal_ids = [],
-                raw_ids = angular.isArray($routeParams.ids) ? $routeParams.ids : [$routeParams.ids];
+        'MealService',
+        'IngredientService',
+        function ($scope, $routeParams, MealService, IngredientService) {
+            var raw_ids = angular.isArray($routeParams.ids) ? $routeParams.ids : [$routeParams.ids];
+
             $scope.meals = [];
             $scope.ingredients = [];
 
             angular.forEach(raw_ids, function (id) {
-                meal_ids.push(parseInt(id, 10));
-                Meal.ingredients({id: id}, function (ingredients) {
-                    angular.forEach(ingredients, function (ingredient) {
-                        $scope.ingredients.push(ingredient);
-                    });
-                });
-            });
-
-            Meal.query(function (meals) {
-                angular.forEach(meals, function (meal) {
-                    if (meal_ids.indexOf(meal.id) >= 0) {
+                id = parseInt(id, 10);
+                (function (id) {
+                    MealService.find(id).then(function (meal) {
                         $scope.meals.push(meal);
-                    }
-                });
+                        return meal;
+                    }).then(function (meal) {
+                        return IngredientService.ingredientsForMeal(meal);
+                    }).then(function (ingredients) {
+                        angular.forEach(ingredients, function (ingredient) {
+                            $scope.ingredients.push(ingredient);
+                        });
+                    });
+                }(id));
             });
         }
     ]
