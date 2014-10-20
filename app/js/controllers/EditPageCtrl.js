@@ -8,11 +8,13 @@ App.controller(
         'Ingredient',
         'IngredientService',
         '$location',
-        function ($scope, $routeParams, Meal, MealService, Ingredient, IngredientService, $location) {
+        '$q',
+        '$timeout',
+        function ($scope, $routeParams, Meal, MealService, Ingredient, IngredientService, $location, $q, $timeout) {
             var meal_id = parseInt($routeParams.id, 10),
-                is_new = meal_id === 'new';
+                is_new = isNaN(meal_id);
 
-            $scope.meal = new Meal({nights:0});
+            $scope.meal = new Meal({nights: 0});
             $scope.ingredients = [];
 
             if (!is_new) {
@@ -28,10 +30,18 @@ App.controller(
 
             $scope.ingredients = [];
             $scope.new_ingredient = {name: '', size: '', unit: ''};
-            $scope.ingredient_names = IngredientService.names();
-            $scope.ingredient_units = IngredientService.units();
+            $scope.ingredient_names = [];
+            $scope.ingredient_units = [];
             $scope.ingredients_to_delete = [];
             $scope.ingredients_to_insert = [];
+
+            IngredientService.units().then(function (units) {
+                $scope.ingredient_units = units;
+            });
+
+            IngredientService.names().then(function (names) {
+                $scope.ingredient_names = names;
+            });
 
             function in_list(arr, item) {
                 return arr.indexOf(item) >= 0;
@@ -49,13 +59,29 @@ App.controller(
             }
 
             function persistIngredients() {
+                var start = $q.defer(),
+                    action = start.promise,
+                    deferred = $q.defer();
+
+                start.resolve();
+
                 angular.forEach($scope.ingredients_to_delete, function (ingredient) {
-                    IngredientService.remove(ingredient);
+                    action.then((function (ingredient) {
+                        return IngredientService.remove(ingredient);
+                    }(ingredient)));
                 });
 
                 angular.forEach($scope.ingredients_to_insert, function (ingredient) {
-                    IngredientService.add(ingredient);
+                    action.then((function (ingredient) {
+                        return IngredientService.add(ingredient);
+                    }(ingredient)));
                 });
+
+                action.then(function () {
+                    deferred.resolve();
+                });
+
+                return deferred.promise;
             }
 
             function clearNewIngredient() {
@@ -66,11 +92,14 @@ App.controller(
 
             $scope.validIngredient = function () {
                 return $scope.new_ingredient.name.length > 0
-                    && $scope.new_ingredient.size.length > 0
-                    && $scope.new_ingredient.unit.length > 0;
+                && $scope.new_ingredient.size.length > 0
+                && $scope.new_ingredient.unit.length > 0;
             };
 
-            $scope.addIngredient = function () {
+            $scope.addIngredient = function (event) {
+                event.stopPropagation();
+                event.preventDefault();
+
                 var new_ingredient = $scope.new_ingredient;
 
                 var ingredient = new Ingredient({
@@ -86,6 +115,8 @@ App.controller(
                 addIngredientToTypeaheads(ingredient);
 
                 clearNewIngredient();
+
+                angular.element('#ingredient_size').focus();
             };
 
             $scope.deleteIngredient = function (index) {
@@ -102,22 +133,33 @@ App.controller(
             };
 
             $scope.saveMeal = function () {
-                var method = 'add';
-
-                if (!is_new) {
-                    persistIngredients();
-                    method = 'update';
+                if ($scope.validIngredient()) {
+                    $scope.addIngredient();
                 }
 
-                MealService[method]($scope.meal).then(function (meal) {
-                    if (is_new) {
+                var promise = null;
+
+                if (!is_new) {
+                    promise = persistIngredients().then(function () {
+                        return MealService.update($scope.meal)
+                    });
+                } else {
+                    promise = MealService.add($scope.meal).then(function (meal) {
                         angular.forEach($scope.ingredients_to_insert, function (ingredient) {
                             ingredient.meal_id = meal.id;
                         });
-                        persistIngredients();
-                    }
-                    $scope.cancel();
+
+                        return persistIngredients();
+                    });
+                }
+
+                promise.then(function () {
+                    $timeout(function () {
+                        $scope.cancel();
+                    });
                 });
+
+                return promise;
             };
 
             $scope.cancel = function () {

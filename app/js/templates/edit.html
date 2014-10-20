@@ -1,5 +1,5 @@
 <div class="edit">
-    <h3>Edit</h3>
+    <h3>{{ meal.id ? "Edit" : "New"}}</h3>
 
     <form class="form-horizontal" ng-submit="saveMeal()" name="addMealForm">
         <div class="form-group">
@@ -51,7 +51,8 @@
 
         <div class="form-inline col-sm-offset-2 col-sm-10">
             <div class="form-group">
-                <input type="text"
+                <input id="ingredient_size"
+                       type="text"
                        class="form-control input-sm"
                        placeholder="Size"
                        ng-model="new_ingredient.size">
@@ -66,10 +67,11 @@
                        class="form-control input-sm"
                        placeholder="Name"
                        ng-model="new_ingredient.name"
+                       ng-keypress="$event.keyCode == 13 && validIngredient() ? addIngredient($event) : null"
                        data-typeahead-min-length="2"
                        data-typeahead="name for name in names=(ingredient_names | filter:$viewValue)"/>
 
-                <a class="btn btn-default btn-xs" ng-click="addIngredient()" ng-disabled="!validIngredient()">
+                <a class="btn btn-default btn-xs" ng-click="addIngredient($event)" ng-disabled="!validIngredient()">
                     <span class="glyphicon glyphicon-plus"></span>
                 </a>
             </div>
