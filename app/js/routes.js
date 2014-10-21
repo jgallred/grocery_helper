@@ -16,6 +16,10 @@ App.config(function ($routeProvider) {
             controller: 'GroceryPageCtrl',
             templateUrl: 'js/templates/grocery_list.html'
         })
+        //.when('/settings', {
+        //    controller: 'SettingsPageCtrl',
+        //    templateUrl: 'js/templates/settings.html'
+        //})
         .otherwise({
             redirectTo: '/'
         });

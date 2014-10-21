@@ -1,10 +1,4 @@
 App.service('MealService', ['$q', '$timeout', '$indexedDB', function ($q, $timeout, $indexedDB) {
-    var meals = [
-        {id: 2, name: 'Meal 1', nights: 2},
-        {id: 3, name: 'Meal 2', nights: 3},
-        {id: 4, name: 'Meal 3', nights: 1}
-    ];
-
     var meals_store = $indexedDB.objectStore('meals');
 
     return {
