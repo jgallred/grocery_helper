@@ -1,4 +1,5 @@
 <div class="grocery_list">
+    <button class="btn noPrint" ng-click="print()">Print</button>
     <h3>Your Grocery List</h3>
     <ul>
         <li ng-repeat="meal in meals | orderBy:'name'">{{meal.name}}</li>

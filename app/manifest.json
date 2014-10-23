@@ -1,11 +1,15 @@
 {
     "manifest_version": 2,
     "name": "Grocery Planner",
-    "version": "0.5",
+    "version": "0.6",
     "app": {
         "background": {
             "scripts": ["main.js"]
         }
+    },
+    "description" : "A tool for building grocery lists based on a meal plan.",
+    "icons" : {
+        "128": "icons/icon128.png"
     },
     "permissions": ["unlimitedStorage"]
 }

@@ -5,7 +5,8 @@ App.controller(
         '$routeParams',
         'MealService',
         'IngredientService',
-        function ($scope, $routeParams, MealService, IngredientService) {
+        '$window',
+        function ($scope, $routeParams, MealService, IngredientService, $window) {
             var raw_ids = angular.isArray($routeParams.ids) ? $routeParams.ids : [$routeParams.ids];
 
             $scope.meals = [];
@@ -22,6 +23,10 @@ App.controller(
                     });
                 });
             });
+
+            $scope.print = function () {
+                $window.print();
+            };
         }
     ]
 );
