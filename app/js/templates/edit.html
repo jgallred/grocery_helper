@@ -61,7 +61,7 @@
                        placeholder="Unit"
                        ng-model="new_ingredient.unit"
                        data-typeahead-min-length="2"
-                       data-typeahead="unit for unit in units=(ingredient_units | filter:$viewValue)"/>
+                       data-typeahead="unit for unit in units=(ingredient_units | filter:$viewValue | limitTo:8)"/>
                 of
                 <input type="text"
                        class="form-control input-sm"
@@ -69,7 +69,7 @@
                        ng-model="new_ingredient.name"
                        ng-keypress="$event.keyCode == 13 && validIngredient() ? addIngredient($event) : null"
                        data-typeahead-min-length="2"
-                       data-typeahead="name for name in names=(ingredient_names | filter:$viewValue)"/>
+                       data-typeahead="name for name in names=(ingredient_names | filter:$viewValue | limitTo:8)"/>
 
                 <a class="btn btn-default btn-xs" ng-click="addIngredient($event)" ng-disabled="!validIngredient()">
                     <span class="glyphicon glyphicon-plus"></span>
