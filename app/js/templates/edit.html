@@ -1,0 +1,89 @@
+<div class="edit">
+    <h3>{{ meal.id ? "Edit" : "New"}}</h3>
+
+    <form class="form-horizontal" ng-submit="saveMeal()" name="addMealForm">
+        <div class="form-group">
+            <label for="recipe_name" class="col-sm-2 control-label">Name</label>
+
+            <div class="col-sm-10">
+                <input type="text"
+                       class="form-control"
+                       id="recipe_name"
+                       placeholder="Name"
+                       maxlength="100"
+                       ng-model="meal.name"
+                       required
+                       ng-minlength="5"
+                       ng-maxlength="100"/>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="recipe_nights" class="col-sm-2 control-label">Nights</label>
+
+            <div class="col-sm-2">
+                <select class="form-control" id="recipe_nights" ng-model="meal.nights" required>
+                    <option value="0" selected>0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="col-sm-offset-2 col-sm-10">
+            <div ng-repeat="ingredient in ingredients" class="row">
+                <div class="col-sm-1">{{ingredient.size}}</div>
+                <div class="col-sm-2">{{ingredient.unit}}</div>
+                <div class="col-sm-1">of</div>
+                <div class="col-sm-4">{{ingredient.name}}</div>
+                <div class="col-sm-1">
+                    <a class="btn btn-default btn-xs" ng-click="deleteIngredient($index)">
+                        <span class="glyphicon glyphicon-trash"></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!--<br/><br/>-->
+
+        <div class="form-inline col-sm-offset-2 col-sm-10">
+            <div class="form-group">
+                <input id="ingredient_size"
+                       type="text"
+                       class="form-control input-sm"
+                       placeholder="Size"
+                       ng-model="new_ingredient.size">
+                <input type="text"
+                       class="form-control input-sm"
+                       placeholder="Unit"
+                       ng-model="new_ingredient.unit"
+                       data-typeahead-min-length="2"
+                       data-typeahead="unit for unit in units=(ingredient_units | filter:$viewValue | limitTo:8)"/>
+                of
+                <input type="text"
+                       class="form-control input-sm"
+                       placeholder="Name"
+                       ng-model="new_ingredient.name"
+                       ng-keypress="$event.keyCode == 13 && validIngredient() ? addIngredient($event) : null"
+                       data-typeahead-min-length="2"
+                       data-typeahead="name for name in names=(ingredient_names | filter:$viewValue | limitTo:8)"/>
+
+                <a class="btn btn-default btn-xs" ng-click="addIngredient($event)" ng-disabled="!validIngredient()">
+                    <span class="glyphicon glyphicon-plus"></span>
+                </a>
+            </div>
+        </div>
+
+        <!--<br/><br/>-->
+
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <button type="submit" class="btn btn-primary" ng-disabled="!addMealForm.$valid">Save</button>
+                <a class="btn btn-default" ng-click="cancel()">Cancel</a>
+            </div>
+        </div>
+    </form>
+</div>

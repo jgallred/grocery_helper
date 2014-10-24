@@ -1,0 +1,29 @@
+<div class="home">
+    <h3>View your Meals</h3>
+    <input type="text" ng-model="search" class="search-query" placeholder="Search">
+    <table class="table">
+        <thead>
+        <tr>
+            <td></td>
+            <td>Name</td>
+            <td>Nights</td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="meal in meals | orderBy:name | filter:search" class="recipe">
+            <td class="actions">
+                <div class="btn-group">
+                    <a class="btn btn-default btn-sm edit-meal" ng-click="editRecipe(meal.id)">
+                        <span class="glyphicon glyphicon-pencil"></span>
+                    </a>
+                    <a class="btn btn-default btn-sm delete-meal" ng-click="deleteRecipe($index)">
+                        <span class="glyphicon glyphicon-trash"></span>
+                    </a>
+                </div>
+            </td>
+            <td class="name"><a ng-click="editRecipe(meal.id)">{{meal.name}}</a></td>
+            <td class="nights">{{meal.nights}}</td>
+        </tr>
+        </tbody>
+    </table>
+</div>

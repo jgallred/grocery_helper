@@ -1,0 +1,9 @@
+@media print {
+    .noPrint {
+        display: none;
+    }
+}
+
+html, body {
+    height: 100%;
+}

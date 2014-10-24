@@ -1,0 +1,11 @@
+<div class="settings">
+    <h3>Settings</h3>
+
+    <h4>Export</h4>
+    <button class="btn" ng-click="export()">Generate Export Data</button>
+    <div contenteditable="false">{{export_data | json}}</div>
+    <h4>Import</h4>
+    <textarea style="height: 15em;width: 40em;" ng-model="data"></textarea>
+    <br/>
+    <button class="btn" ng-click="import(data)">Import Data</button>
+</div>

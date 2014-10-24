@@ -1,0 +1,53 @@
+<!--suppress HtmlFormInputWithoutLabel -->
+<div class="build" ng-show="building">
+    <h3>Create a Grocery List</h3>
+    <table class="table">
+        <thead>
+        <tr>
+            <td></td>
+            <td>Name</td>
+            <td>Nights</td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="meal in filteredMeals=(meals | orderBy:name | filter:{selected:true})" class="recipe">
+            <td class="actions">
+                <input type="checkbox" ng-model="meal.selected"/>
+            </td>
+            <td class="name">{{meal.name}}</td>
+            <td class="nights">{{meal.nights}}</td>
+        </tr>
+        <tr class="recipe">
+            <td class="actions"></td>
+            <td class="name"></td>
+            <td class="nights">Total:{{filteredMeals | totalNights}}</td>
+        </tr>
+        </tbody>
+    </table>
+    <form class="form-inline">
+        <div class="form-group">
+            <input type="text" ng-model="search" class="search-query" placeholder="Filter...">
+            <a class="btn btn-primary" ng-click="generateGroceryList(filteredMeals)">Build List</a>
+        </div>
+    </form>
+    <br/>
+    <h4>Available Meals</h4>
+    <table class="table">
+        <thead>
+        <tr>
+            <td></td>
+            <td>Name</td>
+            <td>Nights</td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="meal in meals | orderBy:name | filter:{selected:false} | filter:search" class="recipe">
+            <td class="actions">
+                <input type="checkbox" ng-model="meal.selected"/>
+            </td>
+            <td class="name">{{meal.name}}</td>
+            <td class="nights">{{meal.nights}}</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
